@@ -8,7 +8,6 @@ const keys = require('./keys.js')
 
 var client = new Twitter(keys.twitterKeys)
 var spotify = new Spotify(keys.spotifyKeys);
-console.log(keys.twitterKeys)
 const command = process.argv[2];
 
 if (command === 'twitter') {
@@ -27,31 +26,28 @@ if (command === 'twitter') {
   });
   // var params = {user_id:	882801866731655168};
   // client.get('statuses/user_timeline',params , function(error, tweets, response) {
-  // 	console.log(error)
-  // 	console.log(tweets)
-  //  if (!error) {
-  //    console.log(tweets);
-  //     	fs.appendFile('random.txt', JSON.parse(tweets));
-  //  }
-  // console.log(tweets)
-  // // console.log(response)
-
-
 
 } else if (command === 'spotify') {
   spotify.search({ type: 'track', query: 'All the Small Things' })
     .then((response) => {
-      //    for (var i = 1; i < request.length; i++) {
+      for (var i = 1; i < 5; i++) {
+        console.log(response.tracks.items[i].album.name);
+        console.log(response.tracks.items[i].track_number);
+        console.log(response.tracks.items[i].uri);
+        console.log(response.tracks.items[i].artists[0].name);
+        console.log(`This Song is from the Album ${response.tracks.items[i].album.name} on track no.${response.tracks.items[i].track_number}`)
+      }
       //   fs.appendFile('random.txt', JSON.parse(request.items));
       // }
-        console.log(response.tracks.items[1]);
-        // fs.appendFile('random.txt', JSON.stringify(response));
-      })
-      .catch((err) => {
-        console.log(err)
-      })
+      // console.log(response.tracks.items[1]);
 
-    // Do something with 'data' 
+      fs.appendFile('random.txt', JSON.stringify(response));
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+
+  // Do something with 'data' 
 
 } else if (command === 'ombd') {
   let movieName = process.argv[3];

@@ -9,65 +9,80 @@ const keys = require('./keys.js')
 var client = new Twitter(keys.twitterKeys)
 var spotify = new Spotify(keys.spotifyKeys);
 const command = process.argv[2];
+const cmdVal = process.argv[3];
 
-if (command === 'twitter') {
+var exe = {
+  twitter: (cmdVal) => {
+    var params = { count: 22 }
+    client.get('statuses/home_timeline/', params, function(error, tweets, response) {
+      if (!error) {
+        for (var i = 1; i < tweets.length; i++) {
+          console.log(`${i}).  ${tweets[i].text}`)
+        }
 
-  // var params = {screen_name: 'nodejs'};
-  var params = { count: 22 }
-  client.get('statuses/home_timeline/', params, function(error, tweets, response) {
-    if (!error) {
-      for (var i = 1; i < tweets.length; i++) {
-        console.log(`${i}).  ${tweets[i].text}`)
+      } else {
+        console.log(error)
       }
+    });
+    return `You have ran ${command} and ${cmdVal}`
+  },
+  spotify: (cmdVal) => {
+    spotify.search({ type: 'track', query: cmdVal })
+      .then((response) => {
+        for (var i = 1; i < 5; i++) {
+          console.log(response.tracks.items[i].album.name);
+          console.log(response.tracks.items[i].track_number);
+          console.log(response.tracks.items[i].uri);
+          console.log(response.tracks.items[i].artists[0].name);
+          console.log(`This Song is from the Album ${response.tracks.items[i].album.name} on track no.${response.tracks.items[i].track_number}`)
+        }
 
-    } else {
-      console.log(error)
-    }
-  });
-  // var params = {user_id:	882801866731655168};
-  // client.get('statuses/user_timeline',params , function(error, tweets, response) {
+      })
+      .catch((err) => {
+        console.log(err)
+      })
 
-} else if (command === 'spotify') {
-  spotify.search({ type: 'track', query: 'All the Small Things' })
-    .then((response) => {
-      for (var i = 1; i < 5; i++) {
-        console.log(response.tracks.items[i].album.name);
-        console.log(response.tracks.items[i].track_number);
-        console.log(response.tracks.items[i].uri);
-        console.log(response.tracks.items[i].artists[0].name);
-        console.log(`This Song is from the Album ${response.tracks.items[i].album.name} on track no.${response.tracks.items[i].track_number}`)
+  },
+  ombd: (cmdVal) => {
+    var queryUrl = "http://www.omdbapi.com/?t=" + cmdVal + "&y&plot=short&apikey=40e9cece";
+
+    // http://www.omdbapi.com/?i=tt3896198&apikey=55aac5b1
+
+    request(queryUrl, function(error, response, body) {
+      console.log(response.statusCode)
+      console.log(JSON.parse(body).Year);
+      if (response.statusCode === '200') {
+        console.log(body)
       }
-      //   fs.appendFile('random.txt', JSON.parse(request.items));
-      // }
-      // console.log(response.tracks.items[1]);
-
-      fs.appendFile('random.txt', JSON.stringify(response));
+      if (error) {
+        console.log('error:', error);
+      }
     })
-    .catch((err) => {
-      console.log(err)
+  },
+  whatever: () => {
+    console.log(`I am doing what 'IT' says which is ${cmdVal}`)
+    fs.readFile('assets/random.txt', 'utf8', (err, data) => {
+      if (err) throw err;
+      console.log(data)
+
+      arr = data.split(',')
+      switch (arr[0]) {
+        case "spotify-this-song":
+          exe.spotify(arr[1]);
+          break;
+        default:
+          console.log('nothing')
+      }
     })
+  }
+}
 
-  // Do something with 'data' 
-
-} else if (command === 'ombd') {
-  let movieName = process.argv[3];
-
-  var queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y&plot=short&apikey=40e9cece";
-
-  // http://www.omdbapi.com/?i=tt3896198&apikey=55aac5b1
-
-  request(queryUrl, function(error, response, body) {
-    console.log(response.statusCode)
-    console.log(JSON.parse(body).Year);
-    if (response.statusCode === '200') {
-      console.log(body)
-
-    }
-    if (error) {
-      console.log('error:', error);
-    }
-  })
-
-  // This line is just to help us debug against the actual URL.
-  console.log(queryUrl);
+if (command === 'my-twitter') {
+  exe.twitter()
+} else if (command === 'spotify-this-song') {
+  exe.spotify()
+} else if (command === 'movie-this') {
+  exe.ombd();
+} else if (command === 'do-what-it-says') {
+  exe.whatever();
 }

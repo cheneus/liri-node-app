@@ -55,7 +55,7 @@ var exe = {
         console.log(body)
       }
       if (error) {
-        console.log('error:', error);
+        console.log(`error: ${error}`);
       }
     })
   },
@@ -80,9 +80,9 @@ var exe = {
 if (command === 'my-twitter') {
   exe.twitter()
 } else if (command === 'spotify-this-song') {
-  exe.spotify()
+  exe.spotify(cmdVal)
 } else if (command === 'movie-this') {
-  exe.ombd();
+  exe.ombd(cmdVal);
 } else if (command === 'do-what-it-says') {
-  exe.whatever();
+  exe.whatever(cmdVal);
 }
